@@ -1,24 +1,35 @@
+import matplotlib.pyplot as plt
+import pandas as pd
+import numpy as np
+import warnings
+warnings.filterwarnings("ignore")
+
 class Jeeja():
 
-    def __init__(self, data):
+    def __init__(self, data, key_rate):
         self.data = data
+        self.key_rate = key_rate
+        self.key_rate['change'] = key_rate['Real_rate']-key_rate['Prev_rate']
     
     ### data имеет вид: data[0] = сдвигаемые данные (факторы); data[1] = несдвигаемые данные (результирующая переменная)
 
 
-    def get_shift(self, data, year=2009, days=0, show_fig=True):
-
-        df = self.data[self.data.index.year==year]
+    def get_shift(self, year=2009, days=0, show_fig=True):
+        
+        data = self.data
+        key_rate = self.key_rate
+        
+        df = data[data.index.year==year]
         df.columns=['X', 'Y']
-
         df['X']=df['X'].shift(periods=days)
+        
         shifted = df.iloc[days:,:]
 
         if show_fig != False:
 
             fig, ax = plt.subplots()
 
-            ax.plot(df['X'], color='red', label = "bond_rets")
+            ax.plot(df['X'], color='red', label = f"{data.columns[0]}")
             ax.legend(loc='upper right', bbox_to_anchor=(0.5, -0.07))
 
             ax2=ax.twinx()
@@ -36,26 +47,29 @@ class Jeeja():
 
         return shifted
 
-    def get_cor(self, data, days_limit=100):
+    def get_cor(self, days_limit=100):
+    
+        data = self.data
 
         cor_table = pd.DataFrame()
         cor_table.index = list(range(0, days_limit))
         cor_table.index.name = 'Shift (days)'
 
-        for year in self.data.index.year.unique():
+        for year in data.index.year.unique():
 
             for day in range(0, days_limit+1):
 
-                x = get_shift(self.data, year, day, show_fig=False)
+                x = self.get_shift(year, day, show_fig=False)
                 cor = x.corr()
                 cor_table.loc[day,year] = cor.iloc[0,1]
 
         return cor_table
 
-    def get_best_cor(self, data, *args):
+    def get_best_cor(self, days_limit=100):
         best_cor={}
+        data = self.data
         
-        cor_tab = get_cor(self.data, days_limit=args)
+        cor_tab = self.get_cor(days_limit=days_limit)
 
         for year in cor_tab.columns:
             b_yearcor = max(cor_tab[year], key=abs)
