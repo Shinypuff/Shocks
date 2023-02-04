@@ -20,7 +20,7 @@ class LagFactor():
         
         data = self.data
         key_rate = self.key_rate
-        cp = self.change_points
+        change_points = self.change_points
         
         df = data[data.index.year==year]
         df.columns = ['X', 'Y']
