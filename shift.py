@@ -40,6 +40,7 @@ class LagFactor():
             ax2.legend(loc='upper left', bbox_to_anchor=(0.5, -0.07))
 
             kr = key_rate[key_rate.index.year==year].index
+            cp = change_points[change_points.index.year==year].index
 
             for date in kr:
                 plt.axvline(date, color='black', alpha=0.1)
