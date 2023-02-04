@@ -4,12 +4,14 @@ import numpy as np
 import warnings
 warnings.filterwarnings("ignore")
 
-class Jeeja():
+class LagFactor():
 
-    def __init__(self, data, key_rate):
+    def __init__(self, data, key_rate, change_points_grid):
         self.data = data
         self.key_rate = key_rate
         self.key_rate['change'] = key_rate['Real_rate']-key_rate['Prev_rate']
+        self.change_points_grid = change_points_grid
+        self.change_points = change_points_grid[change_points_grid['Value'] == 1]
     
     ### data имеет вид: data[0] = сдвигаемые данные (факторы); data[1] = несдвигаемые данные (результирующая переменная)
 
@@ -18,12 +20,13 @@ class Jeeja():
         
         data = self.data
         key_rate = self.key_rate
+        cp = self.change_points
         
         df = data[data.index.year==year]
-        df.columns=['X', 'Y']
-        df['X']=df['X'].shift(periods=days)
+        df.columns = ['X', 'Y']
+        df['X'] = df['X'].shift(periods=days)
         
-        shifted = df.iloc[days:,:]
+        shifted = df.iloc[days:, :]
 
         if show_fig != False:
 
@@ -39,10 +42,13 @@ class Jeeja():
             kr = key_rate[key_rate.index.year==year].index
 
             for date in kr:
-                plt.axvline(date, color='black',alpha=0.1)
+                plt.axvline(date, color='black', alpha=0.1)
                 ax2.text(date, max(df['Y']), str(key_rate.loc[date, 'change']), horizontalalignment='center')
+            
+            for date in cp:
+                plt.axvline(date, color='red', alpha=0.1)
 
-            plt.rcParams["figure.figsize"] = (11,4)
+            plt.rcParams["figure.figsize"] = (11, 4)
             plt.show()
 
         return shifted
