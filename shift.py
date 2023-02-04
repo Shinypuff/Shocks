@@ -50,6 +50,7 @@ class LagFactor():
                 plt.axvline(date, color='red', alpha=0.1)
 
             plt.rcParams["figure.figsize"] = (11, 4)
+            plt.title(f'{data.columns[0]}: {year}')
             plt.show()
 
         return shifted
